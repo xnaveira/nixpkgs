@@ -1,30 +1,47 @@
-{ stdenv, fetchurl, guileSupport ? false, pkgconfig ? null , guile ? null }:
+{ stdenv, fetchurl, texinfo, guileSupport ? false, pkgconfig , guile ? null, autoreconfHook }:
 
-assert guileSupport -> ( pkgconfig != null && guile != null );
+assert guileSupport -> ( guile != null );
 
 let
-  version = "4.2.1";
-in
-stdenv.mkDerivation {
-  name = "gnumake-${version}";
+  version = "4.2.90";
+  revision = "48c8a116a914a325a0497721f5d8b58d5bba34d4";
+  revCount = "2491";
+  shortRev = "48c8a11";
 
-  src = fetchurl {
-    url = "mirror://gnu/make/make-${version}.tar.bz2";
+  baseVersion = "4.2.1";
+  baseTarball = fetchurl {
+    url = "mirror://gnu/make/make-${baseVersion}.tar.bz2";
     sha256 = "12f5zzyq2w56g95nni65hc0g5p7154033y2f3qmjvd016szn5qnn";
   };
+in
+stdenv.mkDerivation {
+  name = "gnumake-${version}pre${revCount}_${shortRev}";
 
-  patchFlags = "-p0";
+  src = fetchurl {
+    url = "http://git.savannah.gnu.org/cgit/make.git/snapshot/make-${revision}.tar.gz";
+    sha256 = "0k6yvhr2a5lh1qhflv02dyvq5p20ikgaakm8w6gr4xmkspljwpwx";
+  };
+
+  postUnpack = ''
+    unpackFile ${baseTarball}
+    cp make-${baseVersion}/po/*.po $sourceRoot/po
+    cp make-${baseVersion}/doc/{fdl,make-stds}.texi $sourceRoot/doc
+  '';
+
   patches = [
     # Purity: don't look for library dependencies (of the form `-lfoo') in /lib
     # and /usr/lib. It's a stupid feature anyway. Likewise, when searching for
     # included Makefiles, don't look in /usr/include and friends.
     ./impure-dirs.patch
-    ./pselect.patch
-    ./glibc-2.27.patch
   ];
 
-  nativeBuildInputs = stdenv.lib.optionals guileSupport [ pkgconfig ];
-  buildInputs = stdenv.lib.optionals guileSupport [ guile ];
+  postPatch = ''
+    # These aren't in the 4.2.1 tarball yet.
+    sed -i -e 's/sr//' -e 's/zh_TW//' po/LINGUAS
+  '';
+
+  nativeBuildInputs = [ autoreconfHook pkgconfig texinfo ];
+  buildInputs = stdenv.lib.optional guileSupport guile;
 
   configureFlags = stdenv.lib.optional guileSupport "--with-guile";
 
