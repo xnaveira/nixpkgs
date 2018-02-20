@@ -546,10 +546,6 @@ with pkgs;
 
   atomicparsley = callPackage ../tools/video/atomicparsley { };
 
-  attic = callPackage ../tools/backup/attic {
-    python3Packages = python34Packages;
-  };
-
   autoflake = callPackage ../development/tools/analysis/autoflake { };
 
   avfs = callPackage ../tools/filesystems/avfs { };
@@ -1983,6 +1979,8 @@ with pkgs;
     # and enable
     # customConfig = builtins.readFile ./dvtm.config.h;
   };
+
+  ecmtools = callPackage ../tools/cd-dvd/ecm-tools { };
 
   e2tools = callPackage ../tools/filesystems/e2tools { };
 
@@ -5199,6 +5197,8 @@ with pkgs;
 
   wal_e = callPackage ../tools/backup/wal-e { };
 
+  watchexec = callPackage ../tools/misc/watchexec { };
+
   watchman = callPackage ../development/tools/watchman { };
 
   wavefunctioncollapse = callPackage ../tools/graphics/wavefunctioncollapse {};
@@ -6508,6 +6508,11 @@ with pkgs;
     inherit (darwin.apple_sdk.frameworks) Foundation;
   });
 
+  mono58 = lowPrio (callPackage ../development/compilers/mono/5.8.nix {
+    inherit (darwin) libobjc;
+    inherit (darwin.apple_sdk.frameworks) Foundation;
+  });
+
   monoDLLFixer = callPackage ../build-support/mono-dll-fixer { };
 
   mozart-binary = callPackage ../development/compilers/mozart/binary.nix { };
@@ -7267,7 +7272,9 @@ with pkgs;
 
   kt = callPackage ../tools/misc/kt {};
 
-  asn2quickder = callPackage ../development/tools/asn2quickder {};
+  arpa2cm = callPackage ../development/tools/build-managers/arpa2cm { };
+
+  asn2quickder = python2Packages.callPackage ../development/tools/asn2quickder {};
 
   astyle = callPackage ../development/tools/misc/astyle { };
 
@@ -13101,6 +13108,19 @@ with pkgs;
       ];
   };
 
+  linux_riscv = callPackage ../os-specific/linux/kernel/linux-riscv.nix {
+    kernelPatches = [
+      kernelPatches.bridge_stp_helper
+      kernelPatches.modinst_arg_list_too_long
+    ] ++ lib.optionals hostPlatform.isRiscV [
+      kernelPatches.riscv_modules
+      kernelPatches.riscv_irq_busy
+      kernelPatches.riscv_install
+      kernelPatches.riscv_initrd
+      kernelPatches.riscv_initrd_free
+   ];
+  };
+
   linux_samus_4_12 = callPackage ../os-specific/linux/kernel/linux-samus-4.12.nix {
     kernelPatches =
       [ kernelPatches.bridge_stp_helper
@@ -13318,7 +13338,7 @@ with pkgs;
   linux_samus_latest = linuxPackages_samus_latest.kernel;
 
   # A function to build a manually-configured kernel
-  linuxManualConfig = pkgs.buildLinux;
+  linuxManualConfig = makeOverridable (callPackage ../os-specific/linux/kernel/manual-config.nix {});
   buildLinux = makeOverridable (callPackage ../os-specific/linux/kernel/generic.nix {});
 
   keyutils = callPackage ../os-specific/linux/keyutils { };
@@ -13551,6 +13571,10 @@ with pkgs;
   rfkill_udev = callPackage ../os-specific/linux/rfkill/udev.nix { };
 
   riscv-pk = callPackage ../misc/riscv-pk { };
+
+  riscv-pk-with-kernel = riscv-pk.override {
+    payload = "${linux_riscv}/vmlinux";
+  };
 
   rtkit = callPackage ../os-specific/linux/rtkit { };
 
@@ -14851,6 +14875,8 @@ with pkgs;
   };
 
   docker-distribution = callPackage ../applications/virtualization/docker-distribution { };
+
+  docker-credential-gcr = callPackage ../tools/admin/docker-credential-gcr { };
 
   doodle = callPackage ../applications/search/doodle { };
 
@@ -17165,6 +17191,8 @@ with pkgs;
     vte = gnome3.vte;
   };
 
+  sayonara = callPackage ../applications/audio/sayonara { };
+
   sbagen = callPackage ../applications/misc/sbagen { };
 
   scantailor = callPackage ../applications/graphics/scantailor { };
@@ -19020,6 +19048,7 @@ with pkgs;
     tk = tk-8_5;
   };
 
+  xjump = callPackage ../games/xjump { };
   # TODO: the corresponding nix file is missing
   # xracer = callPackage ../games/xracer { };
 
@@ -20572,7 +20601,10 @@ with pkgs;
 
   spdlog = callPackage ../development/libraries/spdlog { };
 
-  dart = callPackage ../development/interpreters/dart { };
+  dart = dart_stable;
+  dart_old = callPackage ../development/interpreters/dart { version = "1.16.1"; };
+  dart_stable = callPackage ../development/interpreters/dart { version = "1.24.3"; };
+  dart_dev = callPackage ../development/interpreters/dart { version = "2.0.0-dev.26.0"; };
 
   httrack = callPackage ../tools/backup/httrack { };
 
@@ -20662,6 +20694,8 @@ with pkgs;
     cc-wrapper-libcxx = callPackage ../test/cc-wrapper { stdenv = llvmPackages.libcxxStdenv; };
     cc-wrapper-clang-39 = callPackage ../test/cc-wrapper { stdenv = llvmPackages_39.stdenv; };
     cc-wrapper-libcxx-39 = callPackage ../test/cc-wrapper { stdenv = llvmPackages_39.libcxxStdenv; };
+    cc-wrapper-clang-4 = callPackage ../test/cc-wrapper { stdenv = llvmPackages_4.stdenv; };
+    cc-wrapper-libcxx-4 = callPackage ../test/cc-wrapper { stdenv = llvmPackages_4.libcxxStdenv; };
     cc-wrapper-clang-5 = callPackage ../test/cc-wrapper { stdenv = llvmPackages_5.stdenv; };
     cc-wrapper-libcxx-5 = callPackage ../test/cc-wrapper { stdenv = llvmPackages_5.libcxxStdenv; };
     stdenv-inputs = callPackage ../test/stdenv-inputs { };
