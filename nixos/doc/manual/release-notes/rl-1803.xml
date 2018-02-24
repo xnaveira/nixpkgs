@@ -82,6 +82,11 @@ following incompatible changes:</para>
 <itemizedlist>
   <listitem>
     <para>
+      <literal>sound.enable</literal> now defaults to false.
+    </para>
+  </listitem>
+  <listitem>
+    <para>
       Dollar signs in options under <option>services.postfix</option> are
       passed verbatim to Postfix, which will interpret them as the beginning of
       a parameter expression. This was already true for string-valued options
@@ -229,6 +234,14 @@ following incompatible changes:</para>
       it now handles all input devices, not just touchpads. As a result, you might need to
       re-evaluate any custom Xorg configuration. In particular,
       <literal>Option "XkbRules" "base"</literal> may result in broken keyboard layout.
+    </para>
+  </listitem>
+  <listitem>
+    <para>
+      The <literal>attic</literal> package was removed. A maintained fork called
+      <link xlink:href="https://www.borgbackup.org/">Borg</link> should be used instead.
+      Migration instructions can be found
+      <link xlink:href="http://borgbackup.readthedocs.io/en/stable/usage/upgrade.html#attic-and-borg-0-xx-to-borg-1-x">here</link>.
     </para>
   </listitem>
 </itemizedlist>
