@@ -1,6 +1,6 @@
 { stdenv, fetchurl, fetchpatch, pkgconfig, gettext, perl
-, expat, glib, cairo, pango, gdk_pixbuf, atk, at_spi2_atk, gobjectIntrospection
-, xorg, epoxy, json_glib, libxkbcommon, gmp
+, expat, glib, cairo, pango, gdk_pixbuf, atk, at-spi2-atk, gobjectIntrospection
+, xorg, epoxy, json-glib, libxkbcommon, gmp
 , waylandSupport ? stdenv.isLinux, wayland, wayland-protocols
 , xineramaSupport ? stdenv.isLinux
 , cupsSupport ? stdenv.isLinux, cups ? null
@@ -13,7 +13,7 @@ with stdenv.lib;
 
 let
   ver_maj = "3.22";
-  ver_min = "26";
+  ver_min = "28";
   version = "${ver_maj}.${ver_min}";
 in
 stdenv.mkDerivation rec {
@@ -21,7 +21,7 @@ stdenv.mkDerivation rec {
 
   src = fetchurl {
     url = "mirror://gnome/sources/gtk+/${ver_maj}/gtk+-${version}.tar.xz";
-    sha256 = "61eef0d320e541976e2dfe445729f12b5ade53050ee9de6184235cb60cd4b967";
+    sha256 = "d299612b018cfed7b2c689168ab52b668023708e17c335eb592260d186f15e1f";
   };
 
   outputs = [ "out" "dev" ];
@@ -38,9 +38,9 @@ stdenv.mkDerivation rec {
     })
   ];
 
-  buildInputs = [ libxkbcommon epoxy json_glib ];
+  buildInputs = [ libxkbcommon epoxy json-glib ];
   propagatedBuildInputs = with xorg; with stdenv.lib;
-    [ expat glib cairo pango gdk_pixbuf atk at_spi2_atk gnome3.gsettings_desktop_schemas
+    [ expat glib cairo pango gdk_pixbuf atk at-spi2-atk gnome3.gsettings-desktop-schemas
       libXrandr libXrender libXcomposite libXi libXcursor libSM libICE ]
     ++ optionals waylandSupport [ wayland wayland-protocols ]
     ++ optionals stdenv.isDarwin (with darwin.apple_sdk.frameworks; [ AppKit Cocoa ])
